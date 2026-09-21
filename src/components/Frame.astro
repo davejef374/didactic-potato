@@ -9,8 +9,12 @@ interface Props {
   /** Caption shown when there is no photograph yet. */
   slot?: string;
   category: CategorySlug;
-  /** CSS aspect-ratio, e.g. "4 / 5". */
+  /** CSS aspect-ratio, e.g. "4 / 5". Empty frames always take it. A real
+   *  photograph keeps its own proportions unless `crop` is set. */
   ratio?: string;
+  /** Force `ratio` on a real photograph too, centre-cropping it. Used where
+   *  the frame is one cell of an index and the row has to stay a row. */
+  crop?: boolean;
   /** "paper" sits on the page; "ground" sits on the near-black open strip. */
   tone?: 'paper' | 'ground';
   widths?: number[];
@@ -25,16 +29,24 @@ const {
   category,
   ratio = '4 / 5',
   tone = 'paper',
-  widths = [320, 640, 960],
-  sizes = '(max-width: 860px) 90vw, 320px',
+  crop = false,
+  widths = [340, 680, 1020],
+  sizes = '(max-width: 860px) 92vw, 340px',
   class: className,
 } = Astro.props;
+
+// An index cell keeps the given ratio so the grid stays a grid — one
+// landscape frame among four portraits leaves a hole otherwise, and a
+// thumbnail is allowed to be a crop. Everywhere there is room to show the
+// photograph whole (the open panel, an entry's header) it keeps its own
+// proportions and nothing the photographer framed is thrown away.
+const frameRatio = image && !crop ? `${image.width} / ${image.height}` : ratio;
 ---
 
 <div
   class:list={['frame', `tone-${tone}`, className]}
   data-pattern={image ? undefined : category}
-  style={`--ratio:${ratio}`}
+  style={`--ratio:${frameRatio}`}
 >
   {
     image ? (

@@ -77,8 +77,8 @@ const { strips } = Astro.props;
                     slot={featured.data.slot}
                     category={category.slug}
                     tone="ground"
-                    widths={[360, 720]}
-                    sizes="(max-width: 860px) 90vw, 260px"
+                    widths={[380, 660, 990]}
+                    sizes="(max-width: 860px) 92vw, 330px"
                   />
                 </a>
               )}
@@ -179,7 +179,7 @@ const { strips } = Astro.props;
   .strip-body-inner {
     height: 100%;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(168px, 20vw, 240px);
+    grid-template-columns: minmax(0, 1fr) clamp(190px, 27vw, 330px);
     gap: var(--s6);
   }
 
@@ -265,18 +265,21 @@ const { strips } = Astro.props;
     transform: translateX(4px);
   }
 
-  /* A print mounted on dark board: an edge, and a shadow that seats it. */
+  /* A print mounted on dark board: an edge, a shadow that seats it, and
+     enough room that a landscape frame is shown whole instead of cropped
+     to a portrait slot. */
   .strip-feature {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-width: 0;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid rgb(var(--open-ink-rgb) / 14%);
-    box-shadow: 0 10px 28px rgb(0 0 0 / 34%);
   }
   .strip-feature :global(.frame) {
-    height: 100%;
-    aspect-ratio: auto;
+    width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    border: 1px solid rgb(var(--open-ink-rgb) / 14%);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 34%);
   }
 
   /* ── Phones: the same five strips, stacked ─────────────────────────────── */

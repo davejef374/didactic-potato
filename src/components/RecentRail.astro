@@ -68,6 +68,7 @@ const { entries } = Astro.props;
 
   .rail-track {
     display: flex;
+    align-items: start;
     gap: 16px;
     width: max-content;
     padding-inline: var(--rail-inset);
@@ -76,6 +77,8 @@ const { entries } = Astro.props;
   .rail-end {
     scroll-snap-align: start;
     flex: none;
+    align-self: stretch;
+    min-height: 220px;
     width: 190px;
     display: grid;
     place-items: center;

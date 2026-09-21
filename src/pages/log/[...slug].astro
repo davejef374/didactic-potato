@@ -126,6 +126,8 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
 
   .figure {
     margin: clamp(26px, 4vw, 44px) auto 0;
+  }
+  .figure :global(.frame) {
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid var(--rule);
