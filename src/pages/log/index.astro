@@ -1,0 +1,109 @@
+---
+import Base from '../../layouts/Base.astro';
+import { allEntries } from '../../lib/entries';
+import { categoryBySlug } from '../../data/categories';
+import { url, shortDate } from '../../lib/site';
+
+const entries = await allEntries();
+---
+
+<Base title="Log" description="Everything, newest first.">
+  <div class="wrap head">
+    <p class="kicker">THE WHOLE LOG</p>
+    <h1>{entries.length} {entries.length === 1 ? 'entry' : 'entries'}, newest first.</h1>
+  </div>
+
+  <ol class="wrap list">
+    {
+      entries.map((entry) => (
+        <li>
+          <a href={url(`/log/${entry.id}/`)}>
+            <span class="mono date">{shortDate(entry.data.date)}</span>
+            <span class="body">
+              <span class="title">{entry.data.title}</span>
+              <span class="blurb">{entry.data.blurb}</span>
+            </span>
+            <span class="mono cat">
+              {categoryBySlug(entry.data.category)?.name ?? entry.data.category}
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</Base>
+
+<style>
+  .head {
+    padding-top: clamp(28px, 5vw, 46px);
+  }
+  .head .kicker {
+    margin: 0 0 16px;
+  }
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.02;
+    max-width: 16ch;
+  }
+
+  .list {
+    list-style: none;
+    margin: clamp(26px, 4vw, 44px) auto 0;
+    padding-inline: var(--gutter);
+    border-top: 1px solid var(--rule);
+  }
+  .list li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .list a {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 20px;
+    align-items: baseline;
+    padding: 20px 6px;
+    transition: padding 0.3s var(--ease), background-color 0.3s;
+  }
+  .list a:hover {
+    padding-inline: 14px 6px;
+    background: rgb(var(--ink-rgb) / 4%);
+  }
+
+  .date {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: rgb(var(--ink-rgb) / 45%);
+  }
+  .body {
+    display: block;
+  }
+  .title {
+    display: block;
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: clamp(21px, 2.4vw, 27px);
+    line-height: 1.15;
+  }
+  .blurb {
+    display: block;
+    margin-top: 5px;
+    max-width: 62ch;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: rgb(var(--ink-rgb) / 58%);
+  }
+  .cat {
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    color: rgb(var(--ink-rgb) / 40%);
+  }
+
+  @media (max-width: 680px) {
+    .list a {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .cat {
+      order: -1;
+    }
+  }
+</style>

@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Strips from '../components/Strips.astro';
+import RecentRail from '../components/RecentRail.astro';
+import { allEntries, strips } from '../lib/entries';
+
+const entries = await allEntries();
+const stripData = await strips();
+const recent = entries.slice(0, 8);
+---
+
+<Base bare>
+  <Hero />
+  <Strips strips={stripData} />
+  <RecentRail entries={recent} />
+</Base>

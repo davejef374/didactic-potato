@@ -1,0 +1,59 @@
+---
+// 4b's hero is pure type — no counters, no cards. The numbers live on the
+// strips below, where they are attached to something.
+---
+
+<section class="hero wrap">
+  <p class="kicker">FIVE HOBBIES, ONE ARCHIVE</p>
+
+  <h1>
+    I take photographs on film, <br />draw in ink, and build <em
+      >machines <br />that emit light.</em
+    >
+  </h1>
+
+  <p class="standfirst">
+    Everything I make ends up here eventually. No schedule, no theme, occasionally an essay
+    about why any of it is worth doing.
+  </p>
+</section>
+
+<style>
+  .hero {
+    padding-top: clamp(30px, 5vw, 46px);
+  }
+
+  .kicker {
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    font-size: clamp(38px, 6.6vw, 76px);
+    line-height: 0.98;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  /* Designed line breaks are for the wide layout only; on a phone the
+     headline should wrap wherever it needs to. */
+  h1 br {
+    display: none;
+  }
+  @media (min-width: 760px) {
+    h1 br {
+      display: inline;
+    }
+  }
+
+  .standfirst {
+    margin: 22px 0 0;
+    max-width: 460px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgb(var(--ink-rgb) / 62%);
+  }
+</style>

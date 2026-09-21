@@ -1,0 +1,309 @@
+---
+import { Image } from 'astro:assets';
+import { url } from '../lib/site';
+import type { Strip } from '../lib/entries';
+
+interface Props {
+  strips: Strip[];
+}
+const { strips } = Astro.props;
+---
+
+<!--
+  A CSS-only accordion. Five radios in one group, `:has(:checked)` doing the
+  opening — no JavaScript, so it works on the first paint and keeps arrow-key
+  navigation for free.
+-->
+<section id="collections" class="strips-section" aria-labelledby="collections-h">
+  <h2 id="collections-h" class="visually-hidden">Collections</h2>
+
+  <div class="strips wrap">
+    {
+      strips.map(({ category, count, featured, thumbs }, i) => (
+        <div class="strip">
+          <input
+            class="visually-hidden"
+            type="radio"
+            name="strip"
+            id={`strip-${category.slug}`}
+            checked={i === 0}
+          />
+
+          <label class="rail" for={`strip-${category.slug}`}>
+            <span class="rail-name mono">{category.name}</span>
+            <span class="rail-count mono">{count}</span>
+          </label>
+
+          <div class="strip-body">
+            <div class="strip-body-inner">
+            <div class="strip-head">
+              <span class="strip-kicker mono">{featured?.data.kicker ?? 'NOTHING FILED YET'}</span>
+              <span class="strip-count mono">{count} {count === 1 ? 'ITEM' : 'ITEMS'}</span>
+            </div>
+
+            <h3 class="strip-title">
+              {featured ? (
+                <a href={url(`/log/${featured.id}/`)}>{featured.data.title}</a>
+              ) : (
+                category.label
+              )}
+            </h3>
+
+            <p class="strip-blurb">{featured?.data.blurb ?? category.blurb}</p>
+
+            <div class="thumbs">
+              {thumbs.map((t) => (
+                <a class="thumb" href={url(`/log/${t.id}/`)} title={t.data.title}>
+                  {t.data.image ? (
+                    <Image src={t.data.image} alt={t.data.imageAlt ?? ''} width={172} height={128} />
+                  ) : (
+                    <span class="thumb-slot mono">{t.data.slot}</span>
+                  )}
+                </a>
+              ))}
+              <a class="thumb thumb-all mono" href={url(`/c/${category.slug}/`)}>
+                all <span aria-hidden="true">→</span>
+                <span class="visually-hidden">{category.label}</span>
+              </a>
+            </div>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .strips-section {
+    margin-top: clamp(20px, 3vw, 34px);
+  }
+
+  .strips {
+    display: flex;
+    height: clamp(280px, 33vw, 320px);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .strip {
+    position: relative;
+    flex: 0 0 78px;
+    overflow: hidden;
+    background: transparent;
+    transition: flex 0.5s var(--ease), background-color 0.4s var(--ease);
+  }
+  .strip + .strip {
+    border-left: 1px solid var(--rule);
+  }
+
+  /* Open: the strip takes the remaining room and goes near-black in BOTH
+     modes. That is the one surface where the amber accent still works. */
+  .strip:has(input:checked) {
+    flex: 1 1 0;
+    background: var(--open-bg);
+  }
+
+  .rail {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 78px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    cursor: pointer;
+  }
+  .strip:has(input:checked) .rail {
+    display: none;
+  }
+
+  .rail-name {
+    writing-mode: vertical-rl;
+    font-weight: 500;
+    font-size: 11.5px;
+    letter-spacing: 0.18em;
+    color: rgb(var(--ink-rgb) / 75%);
+    transition: color 0.25s;
+  }
+  .rail-count {
+    font-size: 10px;
+    color: rgb(var(--ink-rgb) / 40%);
+  }
+  .rail:hover .rail-name {
+    color: var(--accent);
+  }
+
+  /* The radio is visually hidden, so its focus ring has to be borrowed. */
+  .strip:has(input:focus-visible) .rail {
+    outline: 2px solid var(--accent);
+    outline-offset: -4px;
+    border-radius: 4px;
+  }
+
+  .strip-body {
+    padding: 26px;
+    min-width: 420px;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s 0.14s, visibility 0.3s;
+  }
+  .strip-body-inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .strip:has(input:checked) .strip-body {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .strip-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .strip-kicker {
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--open-accent);
+  }
+  .strip-count {
+    font-size: 10px;
+    color: rgb(var(--open-ink-rgb) / 45%);
+  }
+
+  .strip-title {
+    margin-top: 10px;
+    font-size: clamp(25px, 2.6vw, 32px);
+    line-height: 1.06;
+    color: var(--open-ink);
+    max-width: 13ch;
+  }
+  .strip-title a {
+    transition: color 0.25s;
+  }
+  .strip-title a:hover {
+    color: var(--open-accent);
+  }
+
+  .strip-blurb {
+    margin: 10px 0 0;
+    max-width: 340px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: rgb(var(--open-ink-rgb) / 62%);
+  }
+
+  .thumbs {
+    margin-top: auto;
+    padding-top: 16px;
+    display: flex;
+    gap: 10px;
+  }
+  .thumb {
+    width: 86px;
+    height: 64px;
+    flex: none;
+    border-radius: 7px;
+    overflow: hidden;
+    background: var(--open-hatch);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: rgb(var(--open-ink-rgb) / 55%);
+    text-align: center;
+    transition: transform 0.3s var(--ease);
+  }
+  .thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .thumb:hover {
+    transform: translateY(-3px);
+  }
+  .thumb-slot {
+    padding: 6px;
+    line-height: 1.3;
+  }
+  .thumb-all {
+    background: transparent;
+    border: 1px solid var(--open-rule);
+    gap: 5px;
+    font-size: 11px;
+    color: rgb(var(--open-ink-rgb) / 60%);
+  }
+  .thumb-all:hover {
+    color: var(--open-accent);
+    border-color: var(--open-accent);
+  }
+
+  /* ── Phones: the same five strips, stacked ─────────────────────────────── */
+  @media (max-width: 860px) {
+    .strips {
+      display: block;
+      height: auto;
+    }
+    .strip {
+      flex: none;
+    }
+    .strip + .strip {
+      border-left: none;
+      border-top: 1px solid var(--rule);
+    }
+
+    .rail {
+      position: static;
+      width: auto;
+      flex-direction: row;
+      align-items: center;
+      padding: 15px 2px;
+    }
+    .rail-name {
+      writing-mode: horizontal-tb;
+    }
+    /* Open on a phone keeps its rail — it is the only heading you can see. */
+    .strip:has(input:checked) .rail {
+      display: flex;
+    }
+    .strip:has(input:checked) .rail-name {
+      color: var(--open-ink);
+    }
+    .strip:has(input:checked) .rail-count {
+      color: rgb(var(--open-ink-rgb) / 45%);
+    }
+
+    /* The 0fr -> 1fr expand. The breathing room below has to live on the
+       GRID CONTAINER, not the item: an fr track is floored by its item's
+       outer size, so padding on the item would keep every closed strip
+       22px tall instead of collapsing it to nothing. */
+    .strip-body {
+      min-width: 0;
+      height: auto;
+      padding: 0 2px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.4s var(--ease), padding-bottom 0.4s var(--ease),
+        opacity 0.3s 0.14s, visibility 0.3s;
+    }
+    .strip:has(input:checked) .strip-body {
+      grid-template-rows: 1fr;
+      padding-bottom: 22px;
+    }
+    .strip-body-inner {
+      min-height: 0;
+      overflow: hidden;
+    }
+    .thumbs {
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+  }
+</style>

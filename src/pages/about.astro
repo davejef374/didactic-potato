@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+---
+
+<Base title="About" description={SITE.description}>
+  <div class="wrap page">
+    <p class="kicker">ABOUT</p>
+    <h1>A working archive, kept mostly for myself.</h1>
+
+    <div class="body">
+      <p>
+        This is where the things I make end up. Photographs on film, drawings in ink,
+        occasional essays, and the electronics bench — which is mostly lasers, and mostly
+        an honest account of what went wrong first.
+      </p>
+      <p>
+        There is no schedule and no theme. Entries go up when something is finished, or
+        when something fails interestingly enough to be worth writing down.
+      </p>
+      <p>Say hello: <a href="mailto:hello@example.com">hello@example.com</a>.</p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: clamp(28px, 5vw, 46px);
+    max-width: 720px;
+  }
+  .kicker {
+    margin: 0 0 16px;
+  }
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.02;
+  }
+  .body {
+    margin-top: 28px;
+    font-size: 16.5px;
+    line-height: 1.75;
+    color: rgb(var(--ink-rgb) / 82%);
+  }
+  .body p {
+    margin: 0 0 1.15em;
+  }
+  .body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

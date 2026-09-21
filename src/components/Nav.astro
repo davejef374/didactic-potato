@@ -1,0 +1,156 @@
+---
+import { SITE, url } from '../lib/site';
+
+const links = [
+  { label: 'Work', href: url('/#collections') },
+  { label: 'Writing', href: url('/c/essays/') },
+  { label: 'Log', href: url('/log/') },
+  { label: 'About', href: url('/about/') },
+];
+
+const here = Astro.url.pathname;
+const isCurrent = (href: string) => {
+  const path = href.split('#')[0];
+  if (path === url('/')) return here === url('/');
+  return here.startsWith(path);
+};
+---
+
+<header class="nav">
+  <div class="nav-inner wrap">
+    <a class="wordmark mono" href={url('/')}>{SITE.handle}.<span>index</span></a>
+
+    <nav aria-label="Primary">
+      <ul>
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <button id="theme-toggle" type="button" aria-label="Switch colour mode">
+      <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4.2"></circle>
+        <path d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4"></path>
+      </svg>
+      <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 13.4A8.2 8.2 0 1 1 10.6 4a6.6 6.6 0 0 0 9.4 9.4Z"></path>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 93%, transparent);
+    backdrop-filter: blur(14px) saturate(1.1);
+  }
+
+  .nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding-block: 18px;
+  }
+
+  .wordmark {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .wordmark span {
+    color: var(--accent);
+  }
+
+  nav ul {
+    display: flex;
+    gap: clamp(14px, 2.4vw, 26px);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  nav a {
+    font-size: 13px;
+    color: rgb(var(--ink-rgb) / 55%);
+    transition: color 0.25s;
+  }
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--ink);
+  }
+
+  #theme-toggle {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: transparent;
+    color: rgb(var(--ink-rgb) / 62%);
+    cursor: pointer;
+    transition: color 0.25s, border-color 0.25s;
+  }
+  #theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  #theme-toggle svg {
+    width: 16px;
+    height: 16px;
+    grid-area: 1 / 1;
+  }
+
+  /* Show the mode you are about to switch INTO. */
+  :global(:root[data-theme='light']) .i-sun,
+  :global(:root[data-theme='dark']) .i-moon {
+    display: none;
+  }
+
+  @media (max-width: 560px) {
+    nav a {
+      font-size: 12px;
+    }
+    .nav-inner {
+      gap: 12px;
+    }
+  }
+</style>
+
+<script>
+  const button = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+
+  const label = () =>
+    button?.setAttribute(
+      'aria-label',
+      root.dataset.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
+    );
+
+  label();
+
+  button?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* private mode — the choice just will not persist */
+    }
+    label();
+  });
+</script>

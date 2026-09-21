@@ -1,0 +1,70 @@
+---
+import { SITE, url } from '../lib/site';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/fonts.css';
+import '../styles/global.css';
+
+// Hashed URLs for the three faces that are on screen before anything is
+// scrolled — the body text, the headline, and every mono label.
+import sansLatin from '../styles/fonts/instrument-sans-normal-latin.woff2?url';
+import serifLatin from '../styles/fonts/instrument-serif-normal-latin.woff2?url';
+import monoLatin from '../styles/fonts/jetbrains-mono-normal-latin.woff2?url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Homepage suppresses the "jh.index" title suffix. */
+  bare?: boolean;
+}
+
+const { title, description = SITE.description, bare = false } = Astro.props;
+const pageTitle = !title || bare ? SITE.title : `${title} — ${SITE.title}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href={url('rss.xml')} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preload" as="font" type="font/woff2" href={sansLatin} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={serifLatin} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={monoLatin} crossorigin />
+
+    <!--
+      Resolve the theme before first paint, or the page flashes paper-white on
+      its way to near-black. Kept inline and tiny for that reason.
+    -->
+    <script is:inline>
+      (() => {
+        try {
+          const saved = localStorage.getItem('theme');
+          const system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.dataset.theme = saved === 'dark' || saved === 'light' ? saved : system;
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,227 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import { allEntries, type Entry } from '../../lib/entries';
+import { categoryBySlug } from '../../data/categories';
+import { url, longDate, isoDate } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('log');
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: Entry };
+const { Content } = await render(entry);
+const category = categoryBySlug(entry.data.category);
+
+// Previous / next by date, so an entry is never a dead end.
+const all = await allEntries();
+const i = all.findIndex((e) => e.id === entry.id);
+const newer = i > 0 ? all[i - 1] : undefined;
+const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
+---
+
+<Base title={entry.data.title} description={entry.data.blurb}>
+  <article class="entry">
+    <header class="wrap entry-head">
+      <p class="kicker">{entry.data.kicker}</p>
+      <h1>{entry.data.title}</h1>
+      <p class="blurb">{entry.data.blurb}</p>
+      <p class="meta mono">
+        <time datetime={isoDate(entry.data.date)}>{longDate(entry.data.date)}</time>
+        <span aria-hidden="true">·</span>
+        <a href={url(`/c/${entry.data.category}/`)}>{category?.name ?? entry.data.category}</a>
+      </p>
+    </header>
+
+    {
+      entry.data.image && (
+        <figure class="wrap figure">
+          <Image src={entry.data.image} alt={entry.data.imageAlt ?? ''} widths={[640, 1100, 1600]} />
+        </figure>
+      )
+    }
+
+    <div class="wrap prose">
+      <Content />
+    </div>
+  </article>
+
+  <nav class="wrap pager" aria-label="More entries">
+    {
+      older ? (
+        <a class="pager-link" href={url(`/log/${older.id}/`)}>
+          <span class="mono">← OLDER</span>
+          <span class="pager-title">{older.data.title}</span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    {
+      newer && (
+        <a class="pager-link pager-next" href={url(`/log/${newer.id}/`)}>
+          <span class="mono">NEWER →</span>
+          <span class="pager-title">{newer.data.title}</span>
+        </a>
+      )
+    }
+  </nav>
+</Base>
+
+<style>
+  /* One column, one left edge. The figure is deliberately the exception —
+     a photograph gets the full width. */
+  .entry-head,
+  .prose,
+  .pager {
+    max-width: 720px;
+  }
+
+  .entry-head {
+    padding-top: clamp(28px, 5vw, 48px);
+  }
+  .entry-head .kicker {
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-size: clamp(34px, 5.4vw, 58px);
+    line-height: 1.02;
+  }
+  .blurb {
+    margin: 18px 0 0;
+    max-width: 52ch;
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgb(var(--ink-rgb) / 62%);
+  }
+  .meta {
+    margin: 20px 0 0;
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: rgb(var(--ink-rgb) / 45%);
+  }
+  .meta a:hover {
+    color: var(--accent);
+  }
+
+  .figure {
+    margin: clamp(26px, 4vw, 44px) auto 0;
+  }
+  .figure :global(img) {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--rule-soft);
+  }
+
+  .prose {
+    margin-top: clamp(26px, 4vw, 44px);
+    font-size: 16.5px;
+    line-height: 1.75;
+    color: rgb(var(--ink-rgb) / 88%);
+  }
+  .prose :global(p) {
+    margin: 0 0 1.15em;
+  }
+  .prose :global(h2) {
+    margin: 1.9em 0 0.5em;
+    font-size: 28px;
+    line-height: 1.15;
+  }
+  .prose :global(h3) {
+    margin: 1.6em 0 0.4em;
+    font-size: 21px;
+  }
+  .prose :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .prose :global(a:hover) {
+    color: var(--accent-hover);
+  }
+  .prose :global(blockquote) {
+    margin: 1.6em 0;
+    padding-left: 20px;
+    border-left: 2px solid var(--accent);
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 21px;
+    line-height: 1.4;
+    color: rgb(var(--ink-rgb) / 76%);
+  }
+  .prose :global(blockquote p) {
+    margin: 0;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin: 0 0 1.15em;
+    padding-left: 1.3em;
+  }
+  .prose :global(li) {
+    margin-bottom: 0.35em;
+  }
+  .prose :global(hr) {
+    margin: 2.2em 0;
+    border: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .prose :global(code) {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 0.86em;
+    background: rgb(var(--ink-rgb) / 7%);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+  }
+  .prose :global(img) {
+    border-radius: 10px;
+    margin: 1.6em 0;
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: clamp(40px, 6vw, 70px);
+  }
+  .pager-link {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 20px;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    transition: border-color 0.3s, transform 0.3s var(--ease);
+  }
+  .pager-link:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+  .pager-next {
+    text-align: right;
+    align-items: flex-end;
+  }
+  .pager-link .mono {
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    color: rgb(var(--ink-rgb) / 45%);
+  }
+  .pager-title {
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 19px;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 620px) {
+    .pager {
+      grid-template-columns: 1fr;
+    }
+    .pager-next {
+      text-align: left;
+      align-items: flex-start;
+    }
+  }
+</style>

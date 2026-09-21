@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/site';
+---
+
+<Base title="Not found">
+  <div class="wrap page">
+    <p class="kicker">404</p>
+    <h1>Filed somewhere else, or not at all.</h1>
+    <p class="body">
+      <a href={url('/log/')}>Try the log</a> — everything is in there, newest first.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: clamp(40px, 8vw, 90px);
+    padding-bottom: clamp(40px, 8vw, 90px);
+    max-width: 640px;
+  }
+  .kicker {
+    margin: 0 0 16px;
+  }
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.02;
+  }
+  .body {
+    margin-top: 24px;
+    font-size: 16px;
+    color: rgb(var(--ink-rgb) / 70%);
+  }
+  .body a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

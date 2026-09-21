@@ -1,0 +1,52 @@
+---
+import { SITE, url } from '../lib/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="foot-inner wrap">
+    <span class="mono">{SITE.handle}.<span class="accent">index</span> · KEPT SINCE 2019</span>
+    <nav aria-label="Footer">
+      <a class="mono" href={url('/log/')}>Log</a>
+      <a class="mono" href={url('/about/')}>About</a>
+      <a class="mono" href={url('/rss.xml')}>RSS</a>
+    </nav>
+    <span class="mono dim">© {year}</span>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--rule);
+    margin-top: clamp(40px, 7vw, 80px);
+  }
+  .foot-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 26px;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 26px 34px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: rgb(var(--ink-rgb) / 55%);
+  }
+  .accent {
+    color: var(--accent);
+  }
+  .dim {
+    color: rgb(var(--ink-rgb) / 40%);
+  }
+  nav {
+    display: flex;
+    gap: 20px;
+  }
+  nav a {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    transition: color 0.25s;
+  }
+  nav a:hover {
+    color: var(--accent);
+  }
+</style>

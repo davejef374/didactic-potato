@@ -1,0 +1,118 @@
+---
+import { Image } from 'astro:assets';
+import { url, shortDate } from '../lib/site';
+import type { Entry } from '../lib/entries';
+
+interface Props {
+  entry: Entry;
+  /** Cards in the horizontal rail snap and have a fixed width. */
+  snap?: boolean;
+}
+const { entry, snap = false } = Astro.props;
+const { title, date, category, image, imageAlt, slot } = entry.data;
+
+// Essays have no photograph to show, so in light mode they run as near-black
+// cards instead of empty ones. In dark mode that trick is unavailable — the
+// page is already near-black — so they take an accent hairline instead.
+const ink = category === 'essays';
+---
+
+<a
+  class:list={['card', { 'card--ink': ink, 'card--snap': snap }]}
+  href={url(`/log/${entry.id}/`)}
+>
+  <div class="card-media">
+    {
+      image ? (
+        <Image src={image} alt={imageAlt ?? ''} width={472} height={590} />
+      ) : (
+        <span class="mono card-slot">{slot}</span>
+      )
+    }
+  </div>
+  <div class="card-meta">
+    <span class="mono card-date">{shortDate(date)}</span>
+    <span class="card-title">{title}</span>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--rule-soft);
+    transition: transform 0.35s var(--ease), box-shadow 0.35s, border-color 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px var(--shadow);
+  }
+
+  .card--snap {
+    scroll-snap-align: start;
+    flex: none;
+    width: 236px;
+  }
+
+  .card-media {
+    aspect-ratio: 4 / 5;
+    background: var(--hatch);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .card-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card-slot {
+    margin: auto;
+    font-size: 10px;
+    color: rgb(var(--ink-rgb) / 42%);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .card-meta {
+    padding: 14px 15px 16px;
+  }
+  .card-date {
+    display: block;
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: rgb(var(--ink-rgb) / 45%);
+  }
+  .card-title {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 18px;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+
+  /* ── The essay card ──────────────────────────────────────────────────── */
+  :global(:root[data-theme='light']) .card--ink {
+    background: #16161a;
+  }
+  :global(:root[data-theme='light']) .card--ink .card-media {
+    background: transparent;
+  }
+  :global(:root[data-theme='light']) .card--ink .card-slot,
+  :global(:root[data-theme='light']) .card--ink .card-date {
+    color: rgb(var(--open-ink-rgb) / 50%);
+  }
+  :global(:root[data-theme='light']) .card--ink .card-title {
+    color: var(--open-ink);
+  }
+
+  :global(:root[data-theme='dark']) .card--ink {
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+</style>

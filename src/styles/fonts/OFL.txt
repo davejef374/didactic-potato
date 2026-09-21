@@ -1,0 +1,13 @@
+The font files in this directory are subject to the SIL Open Font License,
+Version 1.1.
+
+  Instrument Sans  — Copyright (c) Rhode Island Type Foundry
+  Instrument Serif — Copyright (c) Rhode Island Type Foundry
+  JetBrains Mono   — Copyright (c) JetBrains s.r.o.
+
+Full licence text: https://openfontlicense.org/open-font-license-official-text/
+
+In brief: these fonts are free to use, study, modify and redistribute,
+including bundled with and served by this website. They may not be sold on
+their own, and any derivative font must not use the Reserved Font Names above.
+This notice must travel with the font files.
