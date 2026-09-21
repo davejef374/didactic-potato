@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
-import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
+import Frame from '../../components/Frame.astro';
 import { allEntries, type Entry } from '../../lib/entries';
 import { categoryBySlug } from '../../data/categories';
 import { url, longDate, isoDate } from '../../lib/site';
@@ -38,13 +38,29 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
     {
       entry.data.image && (
         <figure class="wrap figure">
-          <Image src={entry.data.image} alt={entry.data.imageAlt ?? ''} widths={[640, 1100, 1600]} />
+          <Frame
+            image={entry.data.image}
+            alt={entry.data.imageAlt ?? ''}
+            category={entry.data.category}
+            ratio="16 / 9"
+            tone="paper"
+            widths={[720, 1100, 1600]}
+            sizes="(max-width: 1100px) 92vw, 1012px"
+          />
         </figure>
       )
     }
 
     <div class="wrap prose">
       <Content />
+    </div>
+
+    <div class="wrap filed">
+      <span class="mono filed-label">FILED UNDER</span>
+      <a class="filed-cat" href={url(`/c/${entry.data.category}/`)}>
+        {category?.label ?? entry.data.category}
+        <span aria-hidden="true">→</span>
+      </a>
     </div>
   </article>
 
@@ -94,7 +110,7 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
     max-width: 52ch;
     font-size: 16px;
     line-height: 1.6;
-    color: rgb(var(--ink-rgb) / 62%);
+    color: var(--text-3);
   }
   .meta {
     margin: 20px 0 0;
@@ -102,7 +118,7 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
     gap: 10px;
     font-size: 11px;
     letter-spacing: 0.1em;
-    color: rgb(var(--ink-rgb) / 45%);
+    color: var(--text-3);
   }
   .meta a:hover {
     color: var(--accent);
@@ -110,21 +126,30 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
 
   .figure {
     margin: clamp(26px, 4vw, 44px) auto 0;
-  }
-  .figure :global(img) {
-    width: 100%;
     border-radius: 12px;
-    border: 1px solid var(--rule-soft);
+    overflow: hidden;
+    border: 1px solid var(--rule);
   }
 
   .prose {
     margin-top: clamp(26px, 4vw, 44px);
     font-size: 16.5px;
     line-height: 1.75;
-    color: rgb(var(--ink-rgb) / 88%);
+    color: var(--text);
   }
   .prose :global(p) {
     margin: 0 0 1.15em;
+  }
+
+  /* One drop cap, on the first paragraph only. The serif is the voice of
+     this site; the essays should open in it. */
+  .prose :global(> p:first-of-type::first-letter) {
+    float: left;
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 3.5em;
+    line-height: 0.82;
+    padding: 0.06em 0.09em 0 0;
+    color: var(--ink);
   }
   .prose :global(h2) {
     margin: 1.9em 0 0.5em;
@@ -137,12 +162,16 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
   }
   .prose :global(a) {
     color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 1.08em;
+    background-size: 100% 1px;
+    transition: background-size 0.3s var(--ease), color 0.25s;
   }
-  .prose :global(a:hover) {
+  .prose :global(a:hover),
+  .prose :global(a:focus-visible) {
     color: var(--accent-hover);
+    background-size: 0% 1px;
   }
   .prose :global(blockquote) {
     margin: 1.6em 0;
@@ -151,7 +180,7 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
     font-family: var(--font-serif), Georgia, serif;
     font-size: 21px;
     line-height: 1.4;
-    color: rgb(var(--ink-rgb) / 76%);
+    color: var(--text-2);
   }
   .prose :global(blockquote p) {
     margin: 0;
@@ -181,6 +210,34 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
     margin: 1.6em 0;
   }
 
+  .filed {
+    margin-top: var(--s7);
+    padding-top: var(--s4);
+    max-width: 720px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    gap: var(--s4);
+    flex-wrap: wrap;
+  }
+  .filed-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--text-3);
+  }
+  .filed-cat {
+    display: inline-flex;
+    gap: 8px;
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: 21px;
+    color: var(--ink);
+    transition: color 0.25s;
+  }
+  .filed-cat:hover {
+    color: var(--accent);
+  }
+
   .pager {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -207,7 +264,7 @@ const older = i >= 0 && i < all.length - 1 ? all[i + 1] : undefined;
   .pager-link .mono {
     font-size: 10px;
     letter-spacing: 0.13em;
-    color: rgb(var(--ink-rgb) / 45%);
+    color: var(--text-3);
   }
   .pager-title {
     font-family: var(--font-serif), Georgia, serif;

@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import EntryCard from '../../components/EntryCard.astro';
 import { CATEGORIES, categoryBySlug } from '../../data/categories';
 import { allEntries } from '../../lib/entries';
+import { url, shortDate } from '../../lib/site';
 
 export async function getStaticPaths() {
   return CATEGORIES.map((c) => ({ params: { category: c.slug } }));
@@ -10,18 +11,28 @@ export async function getStaticPaths() {
 
 const { category: slug } = Astro.params;
 const category = categoryBySlug(slug!)!;
-const entries = (await allEntries()).filter((e) => e.data.category === slug);
+const index = CATEGORIES.findIndex((c) => c.slug === slug);
+const numeral = String(index + 1).padStart(2, '0');
+
+const all = await allEntries();
+const entries = all.filter((e) => e.data.category === slug);
+const others = CATEGORIES.filter((c) => c.slug !== slug);
+const countIn = (s: string) => all.filter((e) => e.data.category === s).length;
 ---
 
 <Base title={category.label} description={category.blurb}>
-  <div class="wrap head">
-    <p class="kicker">{category.name}</p>
+  <header class="wrap head">
+    <div class="head-top">
+      <span class="numeral mono">{numeral}</span>
+      <span class="of mono">OF 05</span>
+    </div>
     <h1>{category.label}</h1>
     <p class="blurb">{category.blurb}</p>
-    <p class="mono count">
+    <p class="mono stat">
       {entries.length} {entries.length === 1 ? 'ITEM' : 'ITEMS'}
+      {entries[0] && <><span class="dot" aria-hidden="true">·</span>LAST ADDED {shortDate(entries[0].data.date)}</>}
     </p>
-  </div>
+  </header>
 
   {
     entries.length > 0 ? (
@@ -34,43 +45,124 @@ const entries = (await allEntries()).filter((e) => e.data.category === slug);
       <p class="wrap empty">Nothing filed here yet.</p>
     )
   }
+
+  <nav class="wrap siblings" aria-label="Other collections">
+    <h2 class="mono label">THE OTHER FOUR</h2>
+    <ul>
+      {
+        others.map((c) => (
+          <li>
+            <a href={url(`/c/${c.slug}/`)}>
+              <span class="sib-name">{c.label}</span>
+              <span class="sib-count mono">{String(countIn(c.slug)).padStart(2, '0')}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 </Base>
 
 <style>
   .head {
     padding-top: clamp(28px, 5vw, 46px);
+    max-width: 780px;
   }
-  .head .kicker {
-    margin: 0 0 16px;
+  .head-top {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s2);
+    margin-bottom: var(--s4);
   }
+  .numeral {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+  }
+  .of {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--text-3);
+  }
+
   h1 {
     font-size: clamp(32px, 5vw, 54px);
     line-height: 1.02;
   }
   .blurb {
-    margin: 18px 0 0;
+    margin: var(--s4) 0 0;
     max-width: 48ch;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
-    color: rgb(var(--ink-rgb) / 62%);
+    color: var(--text-3);
   }
-  .count {
-    margin: 18px 0 0;
+  .stat {
+    margin: var(--s5) 0 0;
     font-size: 10px;
     letter-spacing: 0.13em;
-    color: rgb(var(--ink-rgb) / 45%);
+    color: var(--text-3);
+  }
+  .dot {
+    margin-inline: 8px;
   }
 
   .grid {
-    margin-top: clamp(26px, 4vw, 44px);
+    margin-top: var(--s7);
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(216px, 1fr));
-    gap: 20px;
+    gap: var(--s5);
   }
 
   .empty {
-    margin-top: 34px;
+    margin-top: var(--s6);
     font-size: 15px;
-    color: rgb(var(--ink-rgb) / 55%);
+    color: var(--text-3);
+  }
+
+  /* A collection page should not be a dead end. */
+  .siblings {
+    margin-top: var(--section);
+  }
+  .label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--text-3);
+    margin: 0 0 var(--s3);
+  }
+  .siblings ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .siblings li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .siblings a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s4);
+    padding: var(--s4) var(--s2);
+    transition: padding-inline 0.35s var(--ease), background-color 0.3s;
+  }
+  .siblings a:hover {
+    background: rgb(var(--ink-rgb) / 4%);
+    padding-inline: var(--s4) var(--s2);
+  }
+  .sib-name {
+    font-family: var(--font-serif), Georgia, serif;
+    font-size: clamp(20px, 2.2vw, 25px);
+    line-height: 1.15;
+  }
+  .siblings a:hover .sib-name {
+    color: var(--accent);
+  }
+  .sib-count {
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    color: var(--text-3);
   }
 </style>

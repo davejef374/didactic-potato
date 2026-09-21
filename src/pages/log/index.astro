@@ -1,10 +1,19 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Frame from '../../components/Frame.astro';
 import { allEntries } from '../../lib/entries';
 import { categoryBySlug } from '../../data/categories';
 import { url, shortDate } from '../../lib/site';
 
 const entries = await allEntries();
+
+// Group into years so a long archive reads as a run of seasons rather than
+// one undifferentiated list.
+const years = [...new Set(entries.map((e) => e.data.date.getUTCFullYear()))].sort((a, b) => b - a);
+const byYear = years.map((year) => ({
+  year,
+  items: entries.filter((e) => e.data.date.getUTCFullYear() === year),
+}));
 ---
 
 <Base title="Log" description="Everything, newest first.">
@@ -13,24 +22,54 @@ const entries = await allEntries();
     <h1>{entries.length} {entries.length === 1 ? 'entry' : 'entries'}, newest first.</h1>
   </div>
 
-  <ol class="wrap list">
-    {
-      entries.map((entry) => (
-        <li>
-          <a href={url(`/log/${entry.id}/`)}>
-            <span class="mono date">{shortDate(entry.data.date)}</span>
-            <span class="body">
-              <span class="title">{entry.data.title}</span>
-              <span class="blurb">{entry.data.blurb}</span>
-            </span>
-            <span class="mono cat">
-              {categoryBySlug(entry.data.category)?.name ?? entry.data.category}
-            </span>
-          </a>
-        </li>
-      ))
-    }
-  </ol>
+  {
+    byYear.map(({ year, items }) => (
+      <section class="year-block">
+        <div class="wrap year-head">
+          <h2 class="mono year">{year}</h2>
+          <span class="mono year-count">
+            {items.length} {items.length === 1 ? 'ENTRY' : 'ENTRIES'}
+          </span>
+        </div>
+
+        <ol class="wrap list">
+          {items.map((entry) => (
+            <li>
+              <a href={url(`/log/${entry.id}/`)}>
+                <span class="thumb">
+                  <Frame
+                    image={entry.data.image}
+                    alt={entry.data.imageAlt ?? ''}
+                    category={entry.data.category}
+                    tone="paper"
+                    class="is-small"
+                    widths={[128, 256]}
+                    sizes="64px"
+                  />
+                </span>
+
+                <span class="body">
+                  <span class="mono meta">
+                    {shortDate(entry.data.date)}
+                    <span class="dot" aria-hidden="true">
+                      ·
+                    </span>
+                    {categoryBySlug(entry.data.category)?.name ?? entry.data.category}
+                  </span>
+                  <span class="title">{entry.data.title}</span>
+                  <span class="blurb">{entry.data.blurb}</span>
+                </span>
+
+                <span class="go mono" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))
+  }
 </Base>
 
 <style>
@@ -38,7 +77,7 @@ const entries = await allEntries();
     padding-top: clamp(28px, 5vw, 46px);
   }
   .head .kicker {
-    margin: 0 0 16px;
+    margin: 0 0 var(--s4);
   }
   h1 {
     font-size: clamp(32px, 5vw, 52px);
@@ -46,64 +85,120 @@ const entries = await allEntries();
     max-width: 16ch;
   }
 
-  .list {
-    list-style: none;
-    margin: clamp(26px, 4vw, 44px) auto 0;
-    padding-inline: var(--gutter);
-    border-top: 1px solid var(--rule);
-  }
-  .list li {
-    border-bottom: 1px solid var(--rule);
-  }
-  .list a {
-    display: grid;
-    grid-template-columns: 90px 1fr auto;
-    gap: 20px;
-    align-items: baseline;
-    padding: 20px 6px;
-    transition: padding 0.3s var(--ease), background-color 0.3s;
-  }
-  .list a:hover {
-    padding-inline: 14px 6px;
-    background: rgb(var(--ink-rgb) / 4%);
+  .year-block {
+    margin-top: var(--s7);
   }
 
-  .date {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    color: rgb(var(--ink-rgb) / 45%);
+  .year-head,
+  .list {
+    max-width: 900px;
   }
+
+  .year-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s4);
+    padding-bottom: var(--s3);
+  }
+  .year {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin: 0;
+  }
+  .year-count {
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    color: var(--text-3);
+  }
+  /* The rule runs from the year label to the right margin. */
+  .year-head::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .list {
+    list-style: none;
+    margin: 0 auto;
+    padding-inline: var(--gutter);
+  }
+  .list li + li {
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .list a {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) 24px;
+    gap: var(--s5);
+    align-items: center;
+    padding: var(--s5) var(--s2);
+    transition: background-color 0.3s, padding-inline 0.35s var(--ease);
+  }
+  .list a:hover {
+    background: rgb(var(--ink-rgb) / 4%);
+    padding-inline: var(--s4) var(--s2);
+  }
+
+  .thumb {
+    display: block;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+
   .body {
     display: block;
+    min-width: 0;
+  }
+  .meta {
+    display: block;
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 0.13em;
+    color: var(--text-3);
+  }
+  .dot {
+    margin-inline: 6px;
   }
   .title {
     display: block;
+    margin-top: 5px;
     font-family: var(--font-serif), Georgia, serif;
-    font-size: clamp(21px, 2.4vw, 27px);
-    line-height: 1.15;
+    font-size: clamp(21px, 2.3vw, 27px);
+    line-height: 1.14;
   }
   .blurb {
     display: block;
-    margin-top: 5px;
-    max-width: 62ch;
+    margin-top: 6px;
+    max-width: 64ch;
     font-size: 13.5px;
     line-height: 1.6;
-    color: rgb(var(--ink-rgb) / 58%);
+    color: var(--text-3);
   }
-  .cat {
-    font-size: 10px;
-    letter-spacing: 0.13em;
-    color: rgb(var(--ink-rgb) / 40%);
+
+  .go {
+    justify-self: end;
+    font-size: 14px;
+    color: var(--text-3);
+    transition: transform 0.3s var(--ease), color 0.3s;
+  }
+  .list a:hover .go {
+    color: var(--accent);
+    transform: translateX(4px);
   }
 
   @media (max-width: 680px) {
     .list a {
-      grid-template-columns: 1fr;
-      gap: 6px;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: var(--s4);
+      align-items: start;
     }
-    .cat {
-      order: -1;
+    .go {
+      display: none;
     }
   }
 </style>

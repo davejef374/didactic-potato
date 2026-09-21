@@ -16,16 +16,15 @@ export async function entriesIn(slug: CategorySlug): Promise<Entry[]> {
 }
 
 /**
- * The homepage strips: each category with its real count, the newest entry as
- * the featured one, and the next three as thumbnails. Categories with nothing
- * in them yet still render — they just read "0 ITEMS" and say so honestly.
+ * The homepage strips: each category with its real count and its newest entry
+ * as the featured one. Categories with nothing in them yet still render —
+ * they just read "0 ITEMS" and say so honestly.
  */
 export async function strips() {
   const entries = await allEntries();
   return CATEGORIES.map((category) => {
     const mine = entries.filter((e) => e.data.category === category.slug);
-    const [featured, ...rest] = mine;
-    return { category, count: mine.length, featured, thumbs: rest.slice(0, 3) };
+    return { category, count: mine.length, featured: mine[0] };
   });
 }
 

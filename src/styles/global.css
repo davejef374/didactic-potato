@@ -11,47 +11,92 @@
 
 :root {
   /* Light — warm paper. */
-  --bg: #f7f5f0;
-  --surface: #fffdfa;
+  --bg: #f4f1ea;
+  --surface: #fffdf8;
+  --surface-2: #ece8de;
   --ink-rgb: 22 22 26;
   --ink: rgb(var(--ink-rgb));
   --rule: rgb(var(--ink-rgb) / 14%);
   --rule-soft: rgb(var(--ink-rgb) / 10%);
   --accent: oklch(0.55 0.14 45); /* burnt — holds up on paper */
   --accent-hover: oklch(0.46 0.15 45);
-  --hatch: repeating-linear-gradient(45deg, #e8e4db 0 9px, #f0ede6 9px 18px);
   --shadow: rgb(var(--ink-rgb) / 14%);
 
-  /* The open strip is near-black in BOTH modes, so it carries its own set. */
-  --open-bg: #16161a;
+  /* Text scale. --text-3 is the AA floor for small copy in this mode; nothing
+     that carries information sits below it. There is deliberately no fainter
+     tier: on this paper nothing quieter clears 4.5:1, so the quiet end of the
+     hierarchy is made with size and letterspacing instead of opacity. */
+  --text: rgb(var(--ink-rgb));
+  --text-2: rgb(var(--ink-rgb) / 76%);
+  --text-3: rgb(var(--ink-rgb) / 62%);
+  --on-text: var(--open-ink);
+  --on-text-2: rgb(var(--open-ink-rgb) / 76%);
+  --on-text-3: rgb(var(--open-ink-rgb) / 58%);
+
+  /* Paper tooth. Light mode gets a printed surface, not a flat fill. */
+  --grain-opacity: 0.28;
+  --grain-blend: multiply;
+
+  /* The open strip: a black well sunk into paper. It needs no edge — the
+     tonal jump is the edge. */
+  --open-bg: #17171c;
   --open-ink-rgb: 247 245 240;
   --open-ink: rgb(var(--open-ink-rgb));
   --open-accent: oklch(0.82 0.15 85); /* amber survives here */
   --open-rule: rgb(var(--open-ink-rgb) / 28%);
-  --open-hatch: repeating-linear-gradient(45deg, #26242a 0 8px, #2e2c33 8px 16px);
+  --open-edge: transparent;
+  --open-shadow: none;
+  --open-ground: #33333e;
 
   --ease: cubic-bezier(0.2, 0.8, 0.25, 1);
   --page: 1100px;
   --gutter: clamp(18px, 4vw, 44px);
 
+  /* Spacing scale. Sections use --section so the page has one rhythm. */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 34px;
+  --s7: 48px;
+  --s8: 68px;
+  --section: clamp(40px, 6vw, 78px);
+
   color-scheme: light;
 }
 
 :root[data-theme='dark'] {
-  --bg: #0e0e11;
-  --surface: #17171c;
+  --bg: #08080b;
+  --surface: #131319;
+  --surface-2: #1b1b22;
   --ink-rgb: 244 243 240;
-  --rule: rgb(255 255 255 / 10%);
-  --rule-soft: rgb(255 255 255 / 9%);
+  --rule: rgb(255 255 255 / 11%);
+  --rule-soft: rgb(255 255 255 / 8%);
   --accent: oklch(0.78 0.14 85); /* amber, once the page is dark enough for it */
   --accent-hover: oklch(0.86 0.13 85);
-  --hatch: repeating-linear-gradient(45deg, #1d1d23 0 9px, #232329 9px 18px);
-  --shadow: rgb(0 0 0 / 45%);
+  --shadow: rgb(0 0 0 / 60%);
 
-  --open-bg: #15151b;
+  --text: rgb(var(--ink-rgb));
+  --text-2: rgb(var(--ink-rgb) / 74%);
+  --text-3: rgb(var(--ink-rgb) / 54%);
+  --on-text: var(--open-ink);
+  --on-text-2: rgb(var(--open-ink-rgb) / 74%);
+  --on-text-3: rgb(var(--open-ink-rgb) / 58%);
+
+  /* Film grain rather than paper tooth, and it has to work additively. */
+  --grain-opacity: 0.2;
+  --grain-blend: screen;
+
+  /* In light mode the open strip sinks. Here it RISES: same gesture, opposite
+     direction, because there is nothing darker than the page to sink into.
+     The edge and the lift do the work the tonal jump does on paper. */
+  --open-bg: #1a1a22;
   --open-ink-rgb: 247 246 243;
   --open-accent: oklch(0.78 0.14 85);
-  --open-hatch: repeating-linear-gradient(45deg, #1d1d23 0 8px, #26262d 8px 16px);
+  --open-edge: rgb(255 255 255 / 10%);
+  --open-shadow: 0 18px 50px rgb(0 0 0 / 55%);
+  --open-ground: #34343f;
 
   color-scheme: dark;
 }
@@ -103,6 +148,13 @@ img {
   border-radius: 3px;
 }
 
+/* Utility for blocks that sit on the near-black ground in either mode. */
+.on-ground {
+  --ink-rgb: var(--open-ink-rgb);
+  --rule: rgb(var(--open-ink-rgb) / 16%);
+  --accent: var(--open-accent);
+}
+
 .wrap {
   max-width: var(--page);
   margin: 0 auto;
@@ -149,17 +201,37 @@ img {
   border: 0;
 }
 
-/* The hatched stand-in used wherever a real image has not been added yet. */
-.placeholder {
-  background: var(--hatch);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 10px;
-  color: rgb(var(--ink-rgb) / 42%);
-  text-align: center;
-  padding: 10px;
+/* ── Grain ────────────────────────────────────────────────────────────────
+   A site about film, ink and paper should not be a flat hex fill. One fixed
+   noise layer over everything: paper tooth in light, film grain in dark.
+   Static, so it costs nothing to animate and nothing to scroll.
+
+   Kept deliberately weak. `screen` and `multiply` are the only blends that
+   produce visible texture at these extremes — soft-light leaves the black
+   point untouched but is invisible on it — and both shift the base value,
+   so the strength is set where the grain reads without greying the page. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.86' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.42'/%3E%3C/svg%3E");
+}
+
+/* Links in running text draw their rule on hover rather than carrying it. */
+.u-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 0.35s var(--ease), color 0.25s;
+}
+.u-link:hover,
+.u-link:focus-visible {
+  background-size: 100% 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {

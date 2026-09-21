@@ -1,6 +1,7 @@
 ---
-import { Image } from 'astro:assets';
+import Frame from './Frame.astro';
 import { url, shortDate } from '../lib/site';
+import { categoryBySlug } from '../data/categories';
 import type { Entry } from '../lib/entries';
 
 interface Props {
@@ -11,27 +12,32 @@ interface Props {
 const { entry, snap = false } = Astro.props;
 const { title, date, category, image, imageAlt, slot } = entry.data;
 
-// Essays have no photograph to show, so in light mode they run as near-black
-// cards instead of empty ones. In dark mode that trick is unavailable — the
-// page is already near-black — so they take an accent hairline instead.
+// An essay has no photograph and never will, so instead of leaving it as the
+// one empty card in the row it runs inverted — ink card on paper, paper card
+// on ink. Same gesture in both modes, opposite direction, which is the rule
+// the whole palette follows.
 const ink = category === 'essays';
+const categoryName = categoryBySlug(category)?.name ?? category;
 ---
 
 <a
   class:list={['card', { 'card--ink': ink, 'card--snap': snap }]}
   href={url(`/log/${entry.id}/`)}
 >
-  <div class="card-media">
-    {
-      image ? (
-        <Image src={image} alt={imageAlt ?? ''} width={472} height={590} />
-      ) : (
-        <span class="mono card-slot">{slot}</span>
-      )
-    }
-  </div>
+  <Frame
+    image={image}
+    alt={imageAlt ?? ''}
+    slot={slot}
+    category={category}
+    tone={ink ? 'ground' : 'paper'}
+    widths={[236, 472, 708]}
+    sizes="(max-width: 860px) 70vw, 236px"
+  />
   <div class="card-meta">
-    <span class="mono card-date">{shortDate(date)}</span>
+    <span class="card-line mono">
+      <span class="card-date">{shortDate(date)}</span>
+      <span class="card-cat">{categoryName}</span>
+    </span>
     <span class="card-title">{title}</span>
   </div>
 </a>
@@ -48,7 +54,8 @@ const ink = category === 'essays';
   }
   .card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 24px var(--shadow);
+    box-shadow: 0 14px 30px var(--shadow);
+    border-color: rgb(var(--ink-rgb) / 22%);
   }
 
   .card--snap {
@@ -57,36 +64,26 @@ const ink = category === 'essays';
     width: 236px;
   }
 
-  .card-media {
-    aspect-ratio: 4 / 5;
-    background: var(--hatch);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    overflow: hidden;
-  }
-  .card-media :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .card-slot {
-    margin: auto;
-    font-size: 10px;
-    color: rgb(var(--ink-rgb) / 42%);
-    padding: 10px;
-    text-align: center;
-  }
-
   .card-meta {
-    padding: 14px 15px 16px;
+    padding: 13px 15px 16px;
   }
-  .card-date {
-    display: block;
+  .card-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
     font-weight: 500;
     font-size: 10px;
     letter-spacing: 0.12em;
-    color: rgb(var(--ink-rgb) / 45%);
+  }
+  .card-date {
+    color: var(--text-3);
+  }
+  .card-cat {
+    color: var(--text-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .card-title {
     display: block;
@@ -97,22 +94,39 @@ const ink = category === 'essays';
     color: var(--ink);
   }
 
-  /* ── The essay card ──────────────────────────────────────────────────── */
+  /* ── The essay card, inverted against whatever the page is ───────────── */
   :global(:root[data-theme='light']) .card--ink {
-    background: #16161a;
+    background: var(--open-bg);
+    border-color: transparent;
   }
-  :global(:root[data-theme='light']) .card--ink .card-media {
-    background: transparent;
-  }
-  :global(:root[data-theme='light']) .card--ink .card-slot,
   :global(:root[data-theme='light']) .card--ink .card-date {
-    color: rgb(var(--open-ink-rgb) / 50%);
+    color: var(--on-text-3);
+  }
+  :global(:root[data-theme='light']) .card--ink .card-cat {
+    color: var(--on-text-3);
   }
   :global(:root[data-theme='light']) .card--ink .card-title {
     color: var(--open-ink);
   }
 
   :global(:root[data-theme='dark']) .card--ink {
-    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    background: #f2efe7;
+    border-color: transparent;
+  }
+  :global(:root[data-theme='dark']) .card--ink .card-date {
+    color: rgb(22 22 26 / 76%);
+  }
+  :global(:root[data-theme='dark']) .card--ink .card-cat {
+    color: rgb(22 22 26 / 62%);
+  }
+  :global(:root[data-theme='dark']) .card--ink .card-title {
+    color: #16161a;
+  }
+  /* The frame inside a dark-mode essay card sits on paper, not on ink. */
+  :global(:root[data-theme='dark']) .card--ink :global(.frame) {
+    --frame-ground: #e7e3d8;
+    --frame-line: rgb(22 22 26 / 13%);
+    --frame-ink: rgb(22 22 26 / 62%);
+    --frame-tick: rgb(22 22 26 / 30%);
   }
 </style>

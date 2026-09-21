@@ -1,6 +1,6 @@
 ---
-import { Image } from 'astro:assets';
-import { url } from '../lib/site';
+import Frame from './Frame.astro';
+import { url, shortDate } from '../lib/site';
 import type { Strip } from '../lib/entries';
 
 interface Props {
@@ -19,7 +19,7 @@ const { strips } = Astro.props;
 
   <div class="strips wrap">
     {
-      strips.map(({ category, count, featured, thumbs }, i) => (
+      strips.map(({ category, count, featured }, i) => (
         <div class="strip">
           <input
             class="visually-hidden"
@@ -31,41 +31,57 @@ const { strips } = Astro.props;
 
           <label class="rail" for={`strip-${category.slug}`}>
             <span class="rail-name mono">{category.name}</span>
-            <span class="rail-count mono">{count}</span>
+            <span class="rail-count mono">{String(count).padStart(2, '0')}</span>
           </label>
 
           <div class="strip-body">
             <div class="strip-body-inner">
-            <div class="strip-head">
-              <span class="strip-kicker mono">{featured?.data.kicker ?? 'NOTHING FILED YET'}</span>
-              <span class="strip-count mono">{count} {count === 1 ? 'ITEM' : 'ITEMS'}</span>
-            </div>
+              <div class="strip-lede">
+                <div class="strip-head">
+                  <span class="strip-kicker mono">
+                    {featured?.data.kicker ?? 'NOTHING FILED YET'}
+                  </span>
+                  <span class="strip-count mono">
+                    {count} {count === 1 ? 'ITEM' : 'ITEMS'}
+                  </span>
+                </div>
 
-            <h3 class="strip-title">
-              {featured ? (
-                <a href={url(`/log/${featured.id}/`)}>{featured.data.title}</a>
-              ) : (
-                category.label
-              )}
-            </h3>
-
-            <p class="strip-blurb">{featured?.data.blurb ?? category.blurb}</p>
-
-            <div class="thumbs">
-              {thumbs.map((t) => (
-                <a class="thumb" href={url(`/log/${t.id}/`)} title={t.data.title}>
-                  {t.data.image ? (
-                    <Image src={t.data.image} alt={t.data.imageAlt ?? ''} width={172} height={128} />
+                <h3 class="strip-title">
+                  {featured ? (
+                    <a href={url(`/log/${featured.id}/`)}>{featured.data.title}</a>
                   ) : (
-                    <span class="thumb-slot mono">{t.data.slot}</span>
+                    category.label
                   )}
+                </h3>
+
+                <p class="strip-blurb">{featured?.data.blurb ?? category.blurb}</p>
+
+                <div class="strip-foot">
+                  <span class="strip-last mono">
+                    {featured ? `LAST ADDED ${shortDate(featured.data.date)}` : 'EMPTY SHELF'}
+                  </span>
+                  <a class="strip-all mono" href={url(`/c/${category.slug}/`)}>
+                    ALL {category.name}
+                    <span class="arrow" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                </div>
+              </div>
+
+              {featured && (
+                <a class="strip-feature" href={url(`/log/${featured.id}/`)} tabindex="-1" aria-hidden="true">
+                  <Frame
+                    image={featured.data.image}
+                    alt={featured.data.imageAlt ?? ''}
+                    slot={featured.data.slot}
+                    category={category.slug}
+                    tone="ground"
+                    widths={[360, 720]}
+                    sizes="(max-width: 860px) 90vw, 260px"
+                  />
                 </a>
-              ))}
-              <a class="thumb thumb-all mono" href={url(`/c/${category.slug}/`)}>
-                all <span aria-hidden="true">→</span>
-                <span class="visually-hidden">{category.label}</span>
-              </a>
-            </div>
+              )}
             </div>
           </div>
         </div>
@@ -76,12 +92,12 @@ const { strips } = Astro.props;
 
 <style>
   .strips-section {
-    margin-top: clamp(20px, 3vw, 34px);
+    margin-top: var(--s6);
   }
 
   .strips {
     display: flex;
-    height: clamp(280px, 33vw, 320px);
+    height: clamp(286px, 31vw, 326px);
     border-top: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
   }
@@ -97,11 +113,14 @@ const { strips } = Astro.props;
     border-left: 1px solid var(--rule);
   }
 
-  /* Open: the strip takes the remaining room and goes near-black in BOTH
-     modes. That is the one surface where the amber accent still works. */
+  /* Open. In light mode this sinks into the paper; in dark mode the same
+     gesture has to go the other way — there is nothing darker than the page
+     to sink into — so it rises on an edge and a shadow instead. */
   .strip:has(input:checked) {
     flex: 1 1 0;
     background: var(--open-bg);
+    box-shadow: var(--open-shadow);
+    border-inline: 1px solid var(--open-edge);
   }
 
   .rail {
@@ -124,12 +143,12 @@ const { strips } = Astro.props;
     font-weight: 500;
     font-size: 11.5px;
     letter-spacing: 0.18em;
-    color: rgb(var(--ink-rgb) / 75%);
+    color: var(--text-2);
     transition: color 0.25s;
   }
   .rail-count {
     font-size: 10px;
-    color: rgb(var(--ink-rgb) / 40%);
+    color: var(--text-3);
   }
   .rail:hover .rail-name {
     color: var(--accent);
@@ -143,28 +162,38 @@ const { strips } = Astro.props;
   }
 
   .strip-body {
-    padding: 26px;
-    min-width: 420px;
+    padding: var(--s5);
+    min-width: 430px;
     height: 100%;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s 0.14s, visibility 0.3s;
-  }
-  .strip-body-inner {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
   }
   .strip:has(input:checked) .strip-body {
     opacity: 1;
     visibility: visible;
   }
 
+  /* Two columns: the writing on the left, the work on the right. Without the
+     second column the open panel is more than half empty at desktop widths. */
+  .strip-body-inner {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(168px, 20vw, 240px);
+    gap: var(--s6);
+  }
+
+  .strip-lede {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
   .strip-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 16px;
+    gap: var(--s4);
   }
   .strip-kicker {
     font-weight: 500;
@@ -174,13 +203,13 @@ const { strips } = Astro.props;
   }
   .strip-count {
     font-size: 10px;
-    color: rgb(var(--open-ink-rgb) / 45%);
+    color: var(--on-text-3);
   }
 
   .strip-title {
-    margin-top: 10px;
-    font-size: clamp(25px, 2.6vw, 32px);
-    line-height: 1.06;
+    margin-top: var(--s3);
+    font-size: clamp(28px, 3.1vw, 40px);
+    line-height: 1.02;
     color: var(--open-ink);
     max-width: 13ch;
   }
@@ -192,56 +221,62 @@ const { strips } = Astro.props;
   }
 
   .strip-blurb {
-    margin: 10px 0 0;
-    max-width: 340px;
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: rgb(var(--open-ink-rgb) / 62%);
+    margin: var(--s3) 0 0;
+    max-width: 40ch;
+    font-size: 14px;
+    line-height: 1.62;
+    color: var(--on-text-2);
   }
 
-  .thumbs {
+  .strip-foot {
     margin-top: auto;
-    padding-top: 16px;
+    padding-top: var(--s4);
+    border-top: 1px solid rgb(var(--open-ink-rgb) / 12%);
     display: flex;
-    gap: 10px;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s4);
+    flex-wrap: wrap;
   }
-  .thumb {
-    width: 86px;
-    height: 64px;
-    flex: none;
-    border-radius: 7px;
-    overflow: hidden;
-    background: var(--open-hatch);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+  .strip-last {
     font-size: 10px;
-    color: rgb(var(--open-ink-rgb) / 55%);
-    text-align: center;
+    letter-spacing: 0.13em;
+    color: var(--on-text-3);
+  }
+
+  .strip-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--on-text-3);
+    transition: color 0.3s;
+  }
+  .strip-all .arrow {
     transition: transform 0.3s var(--ease);
   }
-  .thumb :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .thumb:hover {
-    transform: translateY(-3px);
-  }
-  .thumb-slot {
-    padding: 6px;
-    line-height: 1.3;
-  }
-  .thumb-all {
-    background: transparent;
-    border: 1px solid var(--open-rule);
-    gap: 5px;
-    font-size: 11px;
-    color: rgb(var(--open-ink-rgb) / 60%);
-  }
-  .thumb-all:hover {
+  .strip-all:hover {
     color: var(--open-accent);
-    border-color: var(--open-accent);
+  }
+  .strip-all:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  /* A print mounted on dark board: an edge, and a shadow that seats it. */
+  .strip-feature {
+    display: block;
+    min-width: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgb(var(--open-ink-rgb) / 14%);
+    box-shadow: 0 10px 28px rgb(0 0 0 / 34%);
+  }
+  .strip-feature :global(.frame) {
+    height: 100%;
+    aspect-ratio: auto;
   }
 
   /* ── Phones: the same five strips, stacked ─────────────────────────────── */
@@ -256,6 +291,9 @@ const { strips } = Astro.props;
     .strip + .strip {
       border-left: none;
       border-top: 1px solid var(--rule);
+    }
+    .strip:has(input:checked) {
+      border-inline: none;
     }
 
     .rail {
@@ -276,7 +314,7 @@ const { strips } = Astro.props;
       color: var(--open-ink);
     }
     .strip:has(input:checked) .rail-count {
-      color: rgb(var(--open-ink-rgb) / 45%);
+      color: var(--on-text-3);
     }
 
     /* The 0fr -> 1fr expand. The breathing room below has to live on the
@@ -295,15 +333,32 @@ const { strips } = Astro.props;
     }
     .strip:has(input:checked) .strip-body {
       grid-template-rows: 1fr;
-      padding-bottom: 22px;
+      padding-bottom: var(--s5);
     }
     .strip-body-inner {
       min-height: 0;
+      height: auto;
       overflow: hidden;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: var(--s4);
     }
-    .thumbs {
-      margin-top: 16px;
-      flex-wrap: wrap;
+
+    /* Image first on a phone, and wider than tall so it does not eat the
+       screen before the words arrive. */
+    .strip-feature {
+      display: block;
+    }
+    .strip-feature :global(.frame) {
+      aspect-ratio: 16 / 10;
+      height: auto;
+    }
+
+    .strip-title {
+      max-width: none;
+    }
+    .strip-foot {
+      margin-top: var(--s4);
     }
   }
 </style>
