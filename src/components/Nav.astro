@@ -1,5 +1,6 @@
 ---
-import { SITE, url } from '../lib/site';
+import { url } from '../lib/site';
+import Wordmark from './Wordmark.astro';
 
 const links = [
   { label: 'Work', href: url('/#collections') },
@@ -18,7 +19,7 @@ const isCurrent = (href: string) => {
 
 <header class="nav">
   <div class="nav-inner wrap">
-    <a class="wordmark mono" href={url('/')}>{SITE.handle}.<span>index</span></a>
+    <Wordmark home />
 
     <nav aria-label="Primary">
       <ul>
@@ -61,16 +62,6 @@ const isCurrent = (href: string) => {
     align-items: center;
     gap: 20px;
     padding-block: 18px;
-  }
-
-  .wordmark {
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--ink);
-    white-space: nowrap;
-  }
-  .wordmark span {
-    color: var(--accent);
   }
 
   nav ul {

@@ -1,0 +1,41 @@
+---
+import { SITE, url } from '../lib/site';
+
+interface Props {
+  /** The nav mark links home; the footer mark is only a sign-off. */
+  home?: boolean;
+}
+const { home = false } = Astro.props;
+---
+
+<!--
+  The name and its accent dot, in one place. Both the nav and the footer set
+  the mark, and the name itself comes from SITE — so a rename is one string
+  in src/lib/site.ts, not a hunt through the markup.
+-->
+{
+  home ? (
+    <a class="wordmark mono" href={url('/')}>
+      {SITE.name}<span class="dot">.</span>
+    </a>
+  ) : (
+    <span class="wordmark mono">
+      {SITE.name}<span class="dot">.</span>
+    </span>
+  )
+}
+
+<style>
+  .wordmark {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .dot {
+    color: var(--accent);
+  }
+  a.wordmark:hover .dot {
+    color: var(--accent-hover);
+  }
+</style>

@@ -1,7 +1,8 @@
-# jh.index
+# ylias
 
 A personal archive site — photographs, drawings, essays, electronics, found
-things. Built from design **4b**: one page, two modes, a five-strip index.
+things. Built from design **6a**: one page, two modes, a five-strip index, and
+a contents list set beside the headline.
 
 Static [Astro](https://astro.build) site, deployed to GitHub Pages by Actions
 on every push to `main`.
@@ -59,6 +60,20 @@ The toggle follows the system preference until someone overrides it; the
 choice then persists in `localStorage`. An inline script in `src/layouts/
 Base.astro` resolves the mode before first paint so the page never flashes.
 
+## Changing the name
+
+The name is written down in three places, and only three:
+
+| Where | What |
+| --- | --- |
+| `src/lib/site.ts` | `SITE.name` — the wordmark, the tab, the feed, the footer |
+| `public/favicon.svg` | the glyph and its `aria-label` |
+| `package.json` | `name` — cosmetic, but it should agree |
+
+Everything else reads `SITE.name`. The wordmark — the name plus its accent dot
+— is a single component (`src/components/Wordmark.astro`) used by both the nav
+and the footer, so the mark only has to be drawn once.
+
 ## Deploying
 
 Pushing to `main` builds and publishes. One-time setup:
@@ -80,7 +95,8 @@ needs changing.
 
 ```
 src/
-  components/     Nav (+ theme toggle), Hero, Strips, RecentRail, EntryCard, Footer
+  components/     Wordmark, Nav (+ theme toggle), Hero (+ IndexList), Strips,
+                  RecentRail, EntryCard, Frame, Footer
   content/log/    the entries — one Markdown file each
   data/           the five categories, in page order
   layouts/        Base: head, fonts, theme script, nav + footer
@@ -94,6 +110,12 @@ src/
 - **The five strips are CSS-only.** Five radios in one group and
   `:has(:checked)` do the opening — no JavaScript, so they work on first paint,
   and arrow-key navigation comes for free. On phones they stack.
+- **The hero index and the strips are one query.** `strips()` returns each
+  category with its real count and newest entry; the homepage asks once and
+  hands the same array to both. The counts beside the headline and the counts
+  on the strips cannot disagree, because they are the same numbers. Below
+  860px the index stands down — the stacked strips say the same thing, and
+  they open.
 - **Fonts are self-hosted** (`src/styles/fonts/`): Instrument Sans, Instrument
   Serif, JetBrains Mono, latin + latin-ext only, ~144 KB total. No font-CDN
   request when the page loads and no network call during the build, so a

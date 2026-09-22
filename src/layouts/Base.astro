@@ -14,12 +14,12 @@ import monoLatin from '../styles/fonts/jetbrains-mono-normal-latin.woff2?url';
 interface Props {
   title?: string;
   description?: string;
-  /** Homepage suppresses the "jh.index" title suffix. */
+  /** Homepage suppresses the site-name suffix — it is already the wordmark. */
   bare?: boolean;
 }
 
 const { title, description = SITE.description, bare = false } = Astro.props;
-const pageTitle = !title || bare ? SITE.title : `${title} — ${SITE.title}`;
+const pageTitle = !title || bare ? SITE.name : `${title} — ${SITE.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com');
 ---
 
@@ -32,7 +32,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
-    <link rel="alternate" type="application/rss+xml" title={SITE.title} href={url('rss.xml')} />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href={url('rss.xml')} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />

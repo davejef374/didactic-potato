@@ -1,8 +1,12 @@
 export const SITE = {
-  /** Shown in the wordmark as "jh.index" — the part before the dot. */
-  handle: 'jh',
-  title: 'jh.index',
-  author: 'J. H.',
+  /**
+   * The whole name, written down once. The wordmark sets it with an accent
+   * dot after it; the tab, the feed and the footer use it bare.
+   *
+   * Renaming the site means this line, `public/favicon.svg`, and the `name`
+   * in `package.json`. Nothing else spells it out.
+   */
+  name: 'ylias',
   description:
     'A working archive: photographs on film, drawings in ink, essays, and machines that emit light.',
 } as const;
