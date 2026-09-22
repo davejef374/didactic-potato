@@ -1,5 +1,6 @@
 ---
-import { SITE, url, shortDate } from '../lib/site';
+import { url, shortDate } from '../lib/site';
+import Wordmark from './Wordmark.astro';
 import { allEntries } from '../lib/entries';
 
 const entries = await allEntries();
@@ -10,7 +11,7 @@ const year = new Date().getFullYear();
 <footer class="foot">
   <div class="foot-inner wrap">
     <div class="col col-about">
-      <span class="mark mono">{SITE.handle}.<span class="accent">index</span></span>
+      <Wordmark />
       <p>
         Photographs on film, drawings in ink, essays, and machines that emit light.
         Filed as they are finished.
@@ -57,15 +58,6 @@ const year = new Date().getFullYear();
     flex-direction: column;
     gap: var(--s3);
     align-items: flex-start;
-  }
-
-  .mark {
-    font-weight: 500;
-    font-size: 13px;
-    color: var(--ink);
-  }
-  .accent {
-    color: var(--accent);
   }
 
   .label {
