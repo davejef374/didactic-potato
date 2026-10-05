@@ -10,10 +10,10 @@
    ─────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Light — warm paper. */
-  --bg: #f4f1ea;
-  --surface: #fffdf8;
-  --surface-2: #ece8de;
+  /* Light — paper with a jade cast. */
+  --bg: #e6f6ee;
+  --surface: #f9fffc;
+  --surface-2: #d9eee4;
   --ink-rgb: 22 22 26;
   --ink: rgb(var(--ink-rgb));
   --rule: rgb(var(--ink-rgb) / 14%);
@@ -39,14 +39,14 @@
 
   /* The open strip: a black well sunk into paper. It needs no edge — the
      tonal jump is the edge. */
-  --open-bg: #17171c;
+  --open-bg: #0e1b15;
   --open-ink-rgb: 247 245 240;
   --open-ink: rgb(var(--open-ink-rgb));
   --open-accent: oklch(0.82 0.13 160); /* bright jade survives here */
   --open-rule: rgb(var(--open-ink-rgb) / 28%);
   --open-edge: transparent;
   --open-shadow: none;
-  --open-ground: #33333e;
+  --open-ground: #253930;
 
   --ease: cubic-bezier(0.2, 0.8, 0.25, 1);
   --page: 1100px;
@@ -67,9 +67,9 @@
 }
 
 :root[data-theme='dark'] {
-  --bg: #08080b;
-  --surface: #131319;
-  --surface-2: #1b1b22;
+  --bg: #030b07;
+  --surface: #0a1711;
+  --surface-2: #102019;
   --ink-rgb: 244 243 240;
   --rule: rgb(255 255 255 / 11%);
   --rule-soft: rgb(255 255 255 / 8%);
@@ -91,12 +91,12 @@
   /* In light mode the open strip sinks. Here it RISES: same gesture, opposite
      direction, because there is nothing darker than the page to sink into.
      The edge and the lift do the work the tonal jump does on paper. */
-  --open-bg: #1a1a22;
+  --open-bg: #0f1f18;
   --open-ink-rgb: 247 246 243;
   --open-accent: oklch(0.78 0.13 160);
   --open-edge: rgb(255 255 255 / 10%);
   --open-shadow: 0 18px 50px rgb(0 0 0 / 55%);
-  --open-ground: #34343f;
+  --open-ground: #263a31;
 
   color-scheme: dark;
 }
