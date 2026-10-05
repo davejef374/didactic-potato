@@ -11,9 +11,9 @@
 
 :root {
   /* Light — paper with a jade cast. */
-  --bg: #dafaeb;
-  --surface: #eefff7;
-  --surface-2: #c9f4e0;
+  --bg: #e6f6ee;
+  --surface: #f9fffc;
+  --surface-2: #d9eee4;
   --ink-rgb: 22 22 26;
   --ink: rgb(var(--ink-rgb));
   --rule: rgb(var(--ink-rgb) / 14%);
@@ -39,14 +39,14 @@
 
   /* The open strip: a black well sunk into paper. It needs no edge — the
      tonal jump is the edge. */
-  --open-bg: #001e13;
+  --open-bg: #0e1b15;
   --open-ink-rgb: 247 245 240;
   --open-ink: rgb(var(--open-ink-rgb));
   --open-accent: oklch(0.82 0.13 160); /* bright jade survives here */
   --open-rule: rgb(var(--open-ink-rgb) / 28%);
   --open-edge: transparent;
   --open-shadow: none;
-  --open-ground: #0d3e2c;
+  --open-ground: #253930;
 
   --ease: cubic-bezier(0.2, 0.8, 0.25, 1);
   --page: 1100px;
