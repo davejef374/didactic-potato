@@ -50,10 +50,9 @@ edge ~2000px, under ~300 KB); the originals belong in a backup, not in git.
 ## Turning the site off-white
 
 `src/styles/global.css` holds both palettes as custom properties. The light
-mode is not the dark one inverted — amber at full brightness disappears on
-paper, so light mode uses a deeper burnt accent for small text and keeps the
-amber only inside the near-black open strip, where it still has contrast to
-work with. Everything else is shared, which is why this is one built page with
+mode is not the dark one inverted — bright jade washes out on paper, so light
+mode uses a deep, stone-dark jade for small text and keeps the bright jade only
+inside the near-black open strip, where it still has contrast to work with. Everything else is shared, which is why this is one built page with
 a toggle rather than two designs to maintain.
 
 The toggle follows the system preference until someone overrides it; the
