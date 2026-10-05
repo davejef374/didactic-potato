@@ -1,25 +1,25 @@
 /* ───────────────────────────────────────────────────────────────────────────
    Two modes, one skeleton.
 
-   The light mode is not the dark one inverted. Amber at full brightness
-   disappears on paper, so light mode uses a deeper burnt accent for small
-   text and keeps the amber only inside the near-black open strip, where it
-   still has contrast to work with. Type, spacing, the five-strip skeleton
-   and the rail are identical in both — which is why this is one built page
-   with a toggle rather than two designs to maintain.
+   The light mode is not the dark one inverted. Bright jade washes out on
+   paper, so light mode uses a deep, stone-dark jade for small text and keeps
+   the bright jade only inside the near-black open strip, where it still has
+   contrast to work with. Type, spacing, the five-strip skeleton and the rail
+   are identical in both — which is why this is one built page with a toggle
+   rather than two designs to maintain.
    ─────────────────────────────────────────────────────────────────────── */
 
 :root {
-  /* Light — warm paper. */
-  --bg: #f4f1ea;
-  --surface: #fffdf8;
-  --surface-2: #ece8de;
+  /* Light — paper with a jade cast. */
+  --bg: #e6f6ee;
+  --surface: #f9fffc;
+  --surface-2: #d9eee4;
   --ink-rgb: 22 22 26;
   --ink: rgb(var(--ink-rgb));
   --rule: rgb(var(--ink-rgb) / 14%);
   --rule-soft: rgb(var(--ink-rgb) / 10%);
-  --accent: oklch(0.55 0.14 45); /* burnt — holds up on paper */
-  --accent-hover: oklch(0.46 0.15 45);
+  --accent: oklch(0.5 0.11 160); /* deep jade — holds up on paper */
+  --accent-hover: oklch(0.42 0.09 160);
   --shadow: rgb(var(--ink-rgb) / 14%);
 
   /* Text scale. --text-3 is the AA floor for small copy in this mode; nothing
@@ -39,14 +39,14 @@
 
   /* The open strip: a black well sunk into paper. It needs no edge — the
      tonal jump is the edge. */
-  --open-bg: #17171c;
+  --open-bg: #0e1b15;
   --open-ink-rgb: 247 245 240;
   --open-ink: rgb(var(--open-ink-rgb));
-  --open-accent: oklch(0.82 0.15 85); /* amber survives here */
+  --open-accent: oklch(0.82 0.13 160); /* bright jade survives here */
   --open-rule: rgb(var(--open-ink-rgb) / 28%);
   --open-edge: transparent;
   --open-shadow: none;
-  --open-ground: #33333e;
+  --open-ground: #253930;
 
   --ease: cubic-bezier(0.2, 0.8, 0.25, 1);
   --page: 1100px;
@@ -67,14 +67,14 @@
 }
 
 :root[data-theme='dark'] {
-  --bg: #08080b;
-  --surface: #131319;
-  --surface-2: #1b1b22;
+  --bg: #000c06;
+  --surface: #00190f;
+  --surface-2: #002316;
   --ink-rgb: 244 243 240;
   --rule: rgb(255 255 255 / 11%);
   --rule-soft: rgb(255 255 255 / 8%);
-  --accent: oklch(0.78 0.14 85); /* amber, once the page is dark enough for it */
-  --accent-hover: oklch(0.86 0.13 85);
+  --accent: oklch(0.78 0.13 160); /* bright jade, once the page is dark enough for it */
+  --accent-hover: oklch(0.86 0.12 160);
   --shadow: rgb(0 0 0 / 60%);
 
   --text: rgb(var(--ink-rgb));
@@ -91,12 +91,12 @@
   /* In light mode the open strip sinks. Here it RISES: same gesture, opposite
      direction, because there is nothing darker than the page to sink into.
      The edge and the lift do the work the tonal jump does on paper. */
-  --open-bg: #1a1a22;
+  --open-bg: #002115;
   --open-ink-rgb: 247 246 243;
-  --open-accent: oklch(0.78 0.14 85);
+  --open-accent: oklch(0.78 0.13 160);
   --open-edge: rgb(255 255 255 / 10%);
   --open-shadow: 0 18px 50px rgb(0 0 0 / 55%);
-  --open-ground: #34343f;
+  --open-ground: #0e3f2d;
 
   color-scheme: dark;
 }
