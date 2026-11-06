@@ -6,7 +6,7 @@ export const SITE = {
    * Renaming the site means this line, `public/favicon.svg`, and the `name`
    * in `package.json`. Nothing else spells it out.
    */
-  name: 'ylias',
+  name: 'Ellie’s bellie',
   description:
     'A working archive: photographs on film, drawings in ink, essays, and machines that emit light.',
 } as const;
