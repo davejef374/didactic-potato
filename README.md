@@ -1,4 +1,4 @@
-# ylias
+# Ellie’s bellie
 
 A personal archive site — photographs, drawings, essays, electronics, found
 things. Built from design **6a**: one page, two modes, a five-strip index, and
